@@ -2,6 +2,10 @@ name: GitHub API Tests
 
 on: [push, workflow_dispatch]
 
+env: 
+  COLLECTION: https://api.getpostman.com/collections/${{ secrets.POSTMAN_COLLECTION }}?apikey=${{ secrets.POSTMAN_API_KEY }}
+  ENV : https://api.getpostman.com/environments/${{ secrets.POSTMAN_ENV }}?apikey=${{ secrets.POSTMAN_API_KEY }}
+  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,7 +18,7 @@ jobs:
         run: npm install -g newman -g newman-reporter-htmlextra
 
       - name: Run the tests
-        run: newman run https://api.getpostman.com/collections/${{ secrets.POSTMAN_COLLECTION }}?apikey=${{ secrets.POSTMAN_API_KEY }} -e https://api.getpostman.com/environments/${{ secrets.POSTMAN_ENV }}?apikey=${{ secrets.POSTMAN_API_KEY }} -r cli,htmlextra,junit
+        run: newman run $COLLECTION -e $ENV -r cli,htmlextra,junit
 
       - name: Test Report in XML
         uses: dorny/test-reporter@v1
