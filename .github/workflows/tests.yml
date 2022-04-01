@@ -1,0 +1,31 @@
+name: GitHub API Tests
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: install newman and htmlextra dependencies 
+        run: npm install -g newman -g newman-reporter-htmlextra
+
+      - name: Run the tests
+        run: newman run https://api.getpostman.com/collections/${{ secrets.POSTMAN_COLLECTION }}?apikey=${{ secrets.POSTMAN_API_KEY }} -e https://api.getpostman.com/environments/${{ secrets.POSTMAN_ENV }}?apikey=${{ secrets.POSTMAN_API_KEY }} -r cli,htmlextra,junit
+
+      - name: Test Report in XML
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: JEST Tests           
+          path: newman/*.xml
+          reporter: java-junit  
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-rapport-html
+          path: newman/*.html
